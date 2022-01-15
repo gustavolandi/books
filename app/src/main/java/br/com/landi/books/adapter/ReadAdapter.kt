@@ -59,13 +59,13 @@ class ReadAdapter(
             R.drawable.ic_done
         }
         icon.setImageResource(imgResource)
-        if (c.startedDate.isNotEmpty()) {
+        if (c.startedDate?.isNotEmpty() == true) {
             txvReadStartDate.visibility = View.VISIBLE
             txvReadStartDate.text = "Início: ${c.startedDate}"
         } else {
             txvReadStartDate.visibility = View.GONE
         }
-        if (c.finishedDate.isNotEmpty()) {
+        if (c.finishedDate?.isNotEmpty() == true) {
             txvReadFinishDate.visibility = View.VISIBLE
             txvReadFinishDate.text = "Fim: ${c.finishedDate}"
         } else {
