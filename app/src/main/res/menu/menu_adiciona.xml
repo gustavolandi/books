@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".activity.MainActivity">
+    <item android:id="@+id/addItem"
+          android:title="Adiciona Livro"
+          android:icon="@drawable/ic_add_book_filled"
+          android:orderInCategory="100"
+          app:showAsAction="always"/>
+    <item android:id="@+id/filterItem"
+        android:title="Filtrar"
+        android:icon="@drawable/ic_filter_white"
+        android:orderInCategory="1"
+        app:showAsAction="always"/>
+</menu>

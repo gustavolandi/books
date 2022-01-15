@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="5dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text=""
+        android:id="@+id/txvBookTitle"
+        android:textColor="@color/black"
+        android:layout_toStartOf="@+id/imgDeleteItem"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/txvBookAuthor"
+        android:layout_below="@+id/txvBookTitle"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/black"
+        android:layout_toStartOf="@+id/imgAddBookReadList"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        />
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/imgAddBookReadList"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/ic_add_book"
+        android:layout_centerVertical="true"
+        />
+
+</RelativeLayout>
