@@ -13,7 +13,7 @@ class GetStatus {
     companion object {
         fun getStatus(text: String): StatusRead {
             for (statusRead in StatusRead.values()) {
-                if (statusRead.equals(text)) {
+                if (statusRead.status == text) {
                     return statusRead
                 }
             }

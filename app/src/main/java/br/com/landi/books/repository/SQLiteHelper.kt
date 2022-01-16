@@ -92,7 +92,7 @@ class SQLiteHelper(context: Context) :
         return readList
     }
 
-    fun saveBook(book: Book) {
+    fun saveBook(book: Book) : Long {
         var idAuthor: Long? = getAuthorByName(book.authorName!!)
         if (idAuthor == null) {
             idAuthor = saveAuthor(book.authorName!!)
@@ -104,6 +104,7 @@ class SQLiteHelper(context: Context) :
         ctv.put(DATE_REGISTER, book.registerDate)
         val id = db.insert(TBX_BOOKS, ID, ctv)
         saveGenresBooks(book.genreList,id)
+        return id
     }
 
     fun saveReadBook(read: Read) {

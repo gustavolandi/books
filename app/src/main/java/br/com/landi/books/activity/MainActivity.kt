@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                         title = result.data?.getStringExtra(BOOK_TITLE),
                         authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME)
                     )
-                    saveBook(book)
+                    val idBook = saveBook(book)
                     if (result.data?.getBooleanExtra(BOOK_READ_LIST, false) == true) {
                         val statusRead =
                             if (result.data?.getStringExtra(BOOK_DATE_STARTED)!!.isNotEmpty()) {
@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                             }
                        val read =  buildRead(
                            id = 1,
-                           idBook = 1,
+                           idBook = idBook,
                            title = result.data?.getStringExtra(BOOK_TITLE),
                            authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME),
                            startDate = result.data?.getStringExtra(BOOK_DATE_STARTED),
@@ -124,10 +124,11 @@ class MainActivity : AppCompatActivity() {
         listViewReadList()
     }
 
-    fun saveBook(book: Book) {
+    fun saveBook(book: Book): Long {
         val db = SQLiteHelper(this)
-        db.saveBook(book)
+        val id = db.saveBook(book)
         getBookList()
+        return id
     }
 
     fun saveReadList(read: Read){
