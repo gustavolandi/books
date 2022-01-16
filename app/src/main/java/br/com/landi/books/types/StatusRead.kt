@@ -7,3 +7,18 @@ enum class StatusRead(val status: String) {
     STATUS_FINISHED("Lido")
 
 }
+
+class GetStatus {
+
+    companion object {
+        fun getStatus(text: String): StatusRead {
+            for (statusRead in StatusRead.values()) {
+                if (statusRead.equals(text)) {
+                    return statusRead
+                }
+            }
+            return StatusRead.STATUS_NOT_INITIALIZED
+        }
+    }
+}
+

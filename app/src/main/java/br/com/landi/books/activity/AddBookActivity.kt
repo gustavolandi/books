@@ -46,9 +46,9 @@ class AddBookActivity : AppCompatActivity() {
         val edtDateFinish = findViewById<EditText>(R.id.edtDateFinishReading1)
         btn.setOnClickListener {
             if (edtTitle.text.toString().isEmpty()) {
-
+                edtTitle.error  = "Preencha o campo"
             } else if (edtAuthor.text.toString().isEmpty()) {
-
+                edtAuthor.error  = "Preencha o campo"
             } else {
                 with(Intent()) {
                     putExtra(BOOK_TITLE, edtTitle.text.toString())
