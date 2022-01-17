@@ -106,6 +106,17 @@ class ReadAdapter(
     }
 
     private fun dialogUpdateStatus(status : StatusRead, positionBook: Int) {
+        with(Dialog(context)) {
+            setContentView(R.layout.dialog_status)
+            setCancelable(true)
+            setCanceledOnTouchOutside(true)
+            spinnerDialogStatus(this,positionBook,adapterSpinnerDialogUpdate(status))
+            btnStatusUpdate(this,positionBook)
+            show()
+        }
+    }
+
+    private fun adapterSpinnerDialogUpdate(status : StatusRead): ArrayAdapter<String>{
         val listFilter = GetStatus.getStatus().toMutableList()
         if (status == StatusRead.STATUS_READING) {
             listFilter.remove( "Não Iniciado")
@@ -115,88 +126,92 @@ class ReadAdapter(
             R.layout.spinner_layout, listFilter
         )
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        with(Dialog(context)) {
-            setContentView(R.layout.dialog_status)
-            setCancelable(true)
-            setCanceledOnTouchOutside(true)
-            val spinner = findViewById<RelativeLayout>(R.id.spinnerStatus) as Spinner
-            val edtStartDate = findViewById<EditText>(R.id.edtStatusDataStarted)
-            val edtFinishDate = findViewById<EditText>(R.id.edtStatusDataFinished)
-            spinner.onItemSelectedListener = object : OnItemSelectedListener {
-                override fun onItemSelected(
-                    parentView: AdapterView<*>?,
-                    selectedItemView: View,
-                    position: Int,
-                    id: Long
-                ) {
-                    if (spinner.selectedItem.toString() == StatusRead.STATUS_READING.status) {
-                        edtStartDate.visibility = View.VISIBLE
-                        edtFinishDate.visibility = View.GONE
-                        if (getItem(positionBook).startedDate!!.isNotEmpty()) {
-                            edtStartDate.setText(getItem(positionBook).startedDate)
-                            edtStartDate.isEnabled = false
-                        }
-                    } else if (spinner.selectedItem.toString() == StatusRead.STATUS_FINISHED.status){
-                        val edtFinishDate = findViewById<EditText>(R.id.edtStatusDataFinished)
-                        if (getItem(positionBook).startedDate!!.isNotEmpty()) {
-                            edtStartDate.setText(getItem(positionBook).startedDate)
-                            edtStartDate.isEnabled = false
-                        }
-                        edtStartDate.visibility = View.VISIBLE
-                        edtFinishDate.visibility = View.VISIBLE
-                    }
-                    edtStartDate.setOnClickListener { selectDate(edtStartDate, edtFinishDate) }
-                    edtStartDate.setOnFocusChangeListener { v, hasFocus ->
-                        if (hasFocus) {
-                            selectDate(edtStartDate,edtFinishDate)
-                        }
-                    }
-                    edtFinishDate.setOnClickListener { selectDate(edtFinishDate, null) }
-                    edtFinishDate.setOnFocusChangeListener { v, hasFocus ->
-                        if (hasFocus) {
-                            selectDate(edtFinishDate,null)
-                        }
-                    }
+        return dataAdapter
+    }
 
-                }
-
-                override fun onNothingSelected(parentView: AdapterView<*>?) {
-                    // your code here
-                }
-            }
-            spinner.adapter = dataAdapter
-            val btnOk = findViewById<RelativeLayout>(R.id.btnSubmitStatus)
-            btnOk.setOnClickListener {
-                var validateFields = true
-                var startedDate = ""
-                var finishDate = ""
+    private fun spinnerDialogStatus(dialog: Dialog, positionBook: Int, dataAdapter: ArrayAdapter<String>){
+        val spinner = dialog.findViewById<Spinner>(R.id.spinnerStatus)
+        val edtStartDate = dialog.findViewById<EditText>(R.id.edtStatusDataStarted)
+        val edtFinishDate = dialog.findViewById<EditText>(R.id.edtStatusDataFinished)
+        spinner.adapter = dataAdapter
+        spinner.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View,
+                                            position: Int, id: Long) {
                 if (spinner.selectedItem.toString() == StatusRead.STATUS_READING.status) {
-                    if (edtStartDate.text.toString().isEmpty()){
-                        edtStartDate.error = "Preencha o campo"
-                        validateFields = false
-                    } else {
-                        startedDate = edtStartDate.text.toString()
-                    }
-                } else if (spinner.selectedItem.toString() == StatusRead.STATUS_FINISHED.status) {
-                    if (edtStartDate.text.toString().isEmpty()){
-                        edtStartDate.error = "Preencha o campo"
-                        validateFields = false
-                    } else if (edtFinishDate.text.toString().isEmpty()){
-                        edtFinishDate.error = "Preencha o campo"
-                        validateFields = false
-                    }
-                    startedDate = edtStartDate.text.toString()
-                    finishDate = edtFinishDate.text.toString()
+                    edtStartDate.visibility = View.VISIBLE
+                    edtFinishDate.visibility = View.GONE
+                    edtFinishDate.setText("")
+                    validateDataStartedNotEmpty(positionBook,edtStartDate)
+                } else if (spinner.selectedItem.toString() == StatusRead.STATUS_FINISHED.status){
+                    validateDataStartedNotEmpty(positionBook,edtStartDate)
+                    edtStartDate.visibility = View.VISIBLE
+                    edtFinishDate.visibility = View.VISIBLE
                 }
-                if (validateFields) {
-                    updateStatus(GetStatus.getStatus(spinner.selectedItem.toString()),startedDate,finishDate,positionBook)
-                    dismiss()
-
+                edtStartDate.setOnClickListener { selectDate(edtStartDate, edtFinishDate) }
+                edtStartDate.setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) {
+                        selectDate(edtStartDate,edtFinishDate)
+                    }
+                }
+                edtFinishDate.setOnClickListener { selectDate(edtFinishDate, null) }
+                edtFinishDate.setOnFocusChangeListener { v, hasFocus ->
+                    if (hasFocus) {
+                        selectDate(edtFinishDate,null)
+                    }
                 }
 
             }
-            show()
+
+            override fun onNothingSelected(parentView: AdapterView<*>?) {
+
+            }
         }
+    }
+
+    private fun validateDataStartedNotEmpty(positionBook: Int, edtStartDate : EditText) {
+        if (getItem(positionBook).startedDate!!.isNotEmpty()) {
+            edtStartDate.setText(getItem(positionBook).startedDate)
+            edtStartDate.isEnabled = false
+        }
+    }
+
+    private fun btnStatusUpdate(dialog: Dialog,positionBook: Int){
+        val btnOk = dialog.findViewById<RelativeLayout>(R.id.btnSubmitStatus)
+        btnOk.setOnClickListener {
+            val spinner = dialog.findViewById<Spinner>(R.id.spinnerStatus)
+            val edtStartDate = dialog.findViewById<EditText>(R.id.edtStatusDataStarted)
+            val edtFinishDate = dialog.findViewById<EditText>(R.id.edtStatusDataFinished)
+            val validateFields = validateDialogStatusFields(dialog)
+            if (validateFields) {
+                updateStatus(GetStatus.getStatus(spinner.selectedItem.toString()),
+                    edtStartDate.text.toString(),
+                    edtFinishDate.text.toString(),
+                    positionBook)
+                dialog.dismiss()
+            }
+        }
+    }
+
+    private fun validateDialogStatusFields(dialog: Dialog): Boolean {
+        val spinner = dialog.findViewById<Spinner>(R.id.spinnerStatus)
+        val edtStartDate = dialog.findViewById<EditText>(R.id.edtStatusDataStarted)
+        val edtFinishDate = dialog.findViewById<EditText>(R.id.edtStatusDataFinished)
+        var validateFields = true
+        if (spinner.selectedItem.toString() == StatusRead.STATUS_READING.status) {
+            if (edtStartDate.text.toString().isEmpty()){
+                edtStartDate.error = "Preencha o campo"
+                validateFields = false
+            }
+        } else if (spinner.selectedItem.toString() == StatusRead.STATUS_FINISHED.status) {
+            if (edtStartDate.text.toString().isEmpty()){
+                edtStartDate.error = "Preencha o campo"
+                validateFields = false
+            } else if (edtFinishDate.text.toString().isEmpty()){
+                edtFinishDate.error = "Preencha o campo"
+                validateFields = false
+            }
+        }
+        return validateFields
     }
 
     private fun updateStatus(status: StatusRead, startedDate : String, finishDate : String, position: Int) {
