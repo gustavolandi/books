@@ -26,6 +26,10 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
 import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
 import java.text.SimpleDateFormat
 import java.util.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -74,6 +78,13 @@ class MainActivity : AppCompatActivity() {
         btnReadList.setOnClickListener {
             showList(txvReadList, txvBooks, listViewRead, listViewBook)
         }
+        newBook()
+        updateReadList()
+        getBookList()
+        getReadList()
+    }
+
+    fun newBook(){
         intentLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
@@ -94,22 +105,29 @@ class MainActivity : AppCompatActivity() {
                             } else {
                                 StatusRead.STATUS_NOT_INITIALIZED
                             }
-                       val read =  buildRead(
-                           id = 1,
-                           idBook = idBook,
-                           title = result.data?.getStringExtra(BOOK_TITLE),
-                           authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME),
-                           startDate = result.data?.getStringExtra(BOOK_DATE_STARTED),
-                           finishDate = result.data?.getStringExtra(BOOK_DATE_END),
-                           status = statusRead
-                       )
+                        val read =  buildRead(
+                            id = 1,
+                            idBook = idBook,
+                            title = result.data?.getStringExtra(BOOK_TITLE),
+                            authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME),
+                            startDate = result.data?.getStringExtra(BOOK_DATE_STARTED),
+                            finishDate = result.data?.getStringExtra(BOOK_DATE_END),
+                            status = statusRead
+                        )
                         saveReadList(read)
 
                     }
                 }
             }
-        getBookList()
-        getReadList()
+    }
+
+    fun updateReadList() {
+        val uiUpdated: BroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                getReadList()
+            }
+        }
+        registerReceiver(uiUpdated, IntentFilter("BOOK_READ"))
     }
 
     fun getBookList(){

@@ -75,6 +75,7 @@
             android:layout_centerInParent="true"
             android:text="Atualizar Status"
             android:textSize="20dp"
+            android:id="@+id/txvBtnDialogStatus"
             android:textColor="@color/white"
             android:textStyle="bold"/>
     </RelativeLayout>
