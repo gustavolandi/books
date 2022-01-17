@@ -107,6 +107,16 @@ class SQLiteHelper(context: Context) :
         return id
     }
 
+    fun updateReadBook(read: Read) : MutableList<Read> {
+        val db = this.writableDatabase
+        val ctv = ContentValues()
+        ctv.put(STATUS, read.status.status)
+        ctv.put(DATE_STARTED, read.startedDate)
+        ctv.put(DATE_FINISHED, read.finishedDate)
+        db.update(TBX_BOOKS_READ,ctv,"$ID = ?",arrayOf(read.id.toString()))
+        return getReadList()
+    }
+
     fun saveReadBook(read: Read) {
         val db = this.writableDatabase
         val ctv = ContentValues()

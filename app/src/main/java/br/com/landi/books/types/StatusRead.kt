@@ -19,6 +19,16 @@ class GetStatus {
             }
             return StatusRead.STATUS_NOT_INITIALIZED
         }
+
+        fun getStatus() : List<String> {
+            return StatusRead.values().map {
+                if (it.status.isNotEmpty()) {
+                    it.status
+                } else {
+                    "Não Iniciado"
+                }
+            }
+        }
     }
 }
 
