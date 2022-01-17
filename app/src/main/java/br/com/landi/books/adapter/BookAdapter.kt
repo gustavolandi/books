@@ -17,9 +17,7 @@ import br.com.landi.books.utils.Utils
 import br.com.landi.todolist.dialog.CustomDialog
 import java.util.*
 import android.content.Intent
-
-
-
+import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 
 
 class BookAdapter(
@@ -155,7 +153,7 @@ class BookAdapter(
                     edtStartDate.text.toString(),
                     edtFinishDate.text.toString(),
                     positionBook)
-                val i = Intent("BOOK_READ")
+                val i = Intent(BOOK_READ_UPDATE)
                 context.sendBroadcast(i)
                 dialog.dismiss()
             }

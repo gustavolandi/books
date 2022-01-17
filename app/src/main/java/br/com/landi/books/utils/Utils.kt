@@ -16,6 +16,7 @@ class Utils {
         const val BOOK_READ_LIST = "bookReadList"
         const val BOOK_DATE_STARTED = "bookDateStarted"
         const val BOOK_DATE_END = "bookDateEnd"
+        const val BOOK_READ_UPDATE = "BOOK_READ_UPDATE"
 
         fun toastMessage(context: Context, message: String, duration: Int = Toast.LENGTH_LONG) {
             Toast.makeText(context,message,duration).show()

@@ -29,6 +29,7 @@ import java.util.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
+import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 
 
 class MainActivity : AppCompatActivity() {
@@ -127,7 +128,7 @@ class MainActivity : AppCompatActivity() {
                 getReadList()
             }
         }
-        registerReceiver(uiUpdated, IntentFilter("BOOK_READ"))
+        registerReceiver(uiUpdated, IntentFilter(BOOK_READ_UPDATE))
     }
 
     fun getBookList(){
