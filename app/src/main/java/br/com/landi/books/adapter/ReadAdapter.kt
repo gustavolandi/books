@@ -16,7 +16,9 @@ import android.widget.AdapterView
 
 import android.widget.AdapterView.OnItemSelectedListener
 import br.com.landi.books.utils.Action
+import br.com.landi.books.utils.Utils.Companion.getCalendarByDate
 import br.com.landi.todolist.dialog.CustomDialog
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -119,7 +121,7 @@ class ReadAdapter(
     private fun adapterSpinnerDialogUpdate(status : StatusRead): ArrayAdapter<String>{
         val listFilter = GetStatus.getStatus().toMutableList()
         if (status == StatusRead.STATUS_READING) {
-            listFilter.remove( "Não Iniciado")
+            listFilter.remove( StatusRead.STATUS_NOT_INITIALIZED.status)
         }
         val dataAdapter: ArrayAdapter<String> = ArrayAdapter(
             context,
@@ -147,16 +149,16 @@ class ReadAdapter(
                     edtStartDate.visibility = View.VISIBLE
                     edtFinishDate.visibility = View.VISIBLE
                 }
-                edtStartDate.setOnClickListener { selectDate(edtStartDate, edtFinishDate) }
+                edtStartDate.setOnClickListener { selectDate(edtStartDate, edtFinishDate, maxDate = edtFinishDate.text.toString()) }
                 edtStartDate.setOnFocusChangeListener { v, hasFocus ->
                     if (hasFocus) {
-                        selectDate(edtStartDate,edtFinishDate)
+                        selectDate(edtStartDate,edtFinishDate, maxDate = edtFinishDate.text.toString())
                     }
                 }
-                edtFinishDate.setOnClickListener { selectDate(edtFinishDate, null) }
+                edtFinishDate.setOnClickListener { selectDate(edtFinishDate, null, minDate = edtStartDate.text.toString()) }
                 edtFinishDate.setOnFocusChangeListener { v, hasFocus ->
                     if (hasFocus) {
-                        selectDate(edtFinishDate,null)
+                        selectDate(edtFinishDate,null, minDate = edtStartDate.text.toString())
                     }
                 }
 
@@ -210,6 +212,12 @@ class ReadAdapter(
                 edtFinishDate.error = "Preencha o campo"
                 validateFields = false
             }
+            val startDate = getCalendarByDate(edtStartDate.text.toString())
+            val finishDate = getCalendarByDate(edtFinishDate.text.toString())
+            if (finishDate.timeInMillis < startDate.timeInMillis) {
+                edtFinishDate.error = "Data final de leitura deve ser maior ou igual à data inicial de leitura"
+                validateFields = false
+            }
         }
         return validateFields
     }
@@ -220,16 +228,20 @@ class ReadAdapter(
         refresh(list)
     }
 
-    private fun selectDate(edtSelected : EditText, edtNext : EditText?) {
+    private fun selectDate(edtSelected : EditText, edtNext : EditText?, minDate : String = "", maxDate : String = "") {
         val cal = Calendar.getInstance()
-        CustomDialog(context).showDatePickerDialog(cal,object : Action {
-            override fun execute(selectedYear : Int, selectedMonth : Int, selectedDay : Int) {
-                val day = validateFieldDataZeros(selectedDay)
-                val month = validateFieldDataZeros(selectedMonth + 1)
-                edtSelected.setText("$day/$month/$selectedYear")
-                edtNext?.requestFocus()
-            }
-        })
+        CustomDialog(context).showDatePickerDialog(
+            cal,
+            object : Action {
+                override fun execute(selectedYear : Int, selectedMonth : Int, selectedDay : Int) {
+                    val day = validateFieldDataZeros(selectedDay)
+                    val month = validateFieldDataZeros(selectedMonth + 1)
+                    edtSelected.setText("$day/$month/$selectedYear")
+                    edtNext?.requestFocus()
+                }
+            },
+            minDate,
+            maxDate)
     }
 
     private fun validateFieldDataZeros(field: Int) : String {

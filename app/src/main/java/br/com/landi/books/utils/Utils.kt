@@ -3,6 +3,8 @@ package br.com.landi.books.utils
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import java.text.SimpleDateFormat
+import java.util.*
 
 class Utils {
 
@@ -19,9 +21,15 @@ class Utils {
             Toast.makeText(context,message,duration).show()
         }
 
-
         fun validateBuildSdk() : Boolean {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+        }
+
+        fun getCalendarByDate(date : String) : Calendar {
+            val calendar = Calendar.getInstance()
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            calendar.time = sdf.parse(date)
+            return calendar
         }
 
     }
