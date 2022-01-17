@@ -15,9 +15,9 @@ import br.com.landi.books.utils.Utils
 import android.widget.AdapterView
 
 import android.widget.AdapterView.OnItemSelectedListener
-
-
-
+import br.com.landi.books.utils.Action
+import br.com.landi.todolist.dialog.CustomDialog
+import java.util.*
 
 
 class ReadAdapter(
@@ -87,7 +87,7 @@ class ReadAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return list.get(position).id.toLong()
+        return list.get(position).id
     }
 
     override fun getCount(): Int {
@@ -105,7 +105,7 @@ class ReadAdapter(
         )
     }
 
-    private fun dialogUpdateStatus(status : StatusRead, position: Int) {
+    private fun dialogUpdateStatus(status : StatusRead, positionBook: Int) {
         val listFilter = GetStatus.getStatus().toMutableList()
         if (status == StatusRead.STATUS_READING) {
             listFilter.remove( "Não Iniciado")
@@ -132,19 +132,32 @@ class ReadAdapter(
                     if (spinner.selectedItem.toString() == StatusRead.STATUS_READING.status) {
                         edtStartDate.visibility = View.VISIBLE
                         edtFinishDate.visibility = View.GONE
-                        if (getItem(position).startedDate!!.isNotEmpty()) {
-                            edtStartDate.setText(getItem(position).startedDate)
+                        if (getItem(positionBook).startedDate!!.isNotEmpty()) {
+                            edtStartDate.setText(getItem(positionBook).startedDate)
                             edtStartDate.isEnabled = false
                         }
                     } else if (spinner.selectedItem.toString() == StatusRead.STATUS_FINISHED.status){
                         val edtFinishDate = findViewById<EditText>(R.id.edtStatusDataFinished)
-                        if (getItem(position).startedDate!!.isNotEmpty()) {
-                            edtStartDate.setText(getItem(position).startedDate)
+                        if (getItem(positionBook).startedDate!!.isNotEmpty()) {
+                            edtStartDate.setText(getItem(positionBook).startedDate)
                             edtStartDate.isEnabled = false
                         }
                         edtStartDate.visibility = View.VISIBLE
                         edtFinishDate.visibility = View.VISIBLE
                     }
+                    edtStartDate.setOnClickListener { selectDate(edtStartDate, edtFinishDate) }
+                    edtStartDate.setOnFocusChangeListener { v, hasFocus ->
+                        if (hasFocus) {
+                            selectDate(edtStartDate,edtFinishDate)
+                        }
+                    }
+                    edtFinishDate.setOnClickListener { selectDate(edtFinishDate, null) }
+                    edtFinishDate.setOnFocusChangeListener { v, hasFocus ->
+                        if (hasFocus) {
+                            selectDate(edtFinishDate,null)
+                        }
+                    }
+
                 }
 
                 override fun onNothingSelected(parentView: AdapterView<*>?) {
@@ -176,7 +189,7 @@ class ReadAdapter(
                     finishDate = edtFinishDate.text.toString()
                 }
                 if (validateFields) {
-                    updateStatus(GetStatus.getStatus(spinner.selectedItem.toString()),startedDate,finishDate,position)
+                    updateStatus(GetStatus.getStatus(spinner.selectedItem.toString()),startedDate,finishDate,positionBook)
                     dismiss()
 
                 }
@@ -192,8 +205,25 @@ class ReadAdapter(
         refresh(list)
     }
 
-    companion object {
-
+    private fun selectDate(edtSelected : EditText, edtNext : EditText?) {
+        val cal = Calendar.getInstance()
+        CustomDialog(context).showDatePickerDialog(cal,object : Action {
+            override fun execute(selectedYear : Int, selectedMonth : Int, selectedDay : Int) {
+                var mes = selectedMonth + 1
+                var dia = selectedDay
+                val year1 = selectedYear.toString()
+                var month1 = (selectedMonth + 1).toString()
+                var day1 = selectedDay.toString()
+                if (dia < 10) {
+                    day1 = "0$day1"
+                }
+                if (mes < 10) {
+                    month1 = "0$month1"
+                }
+                edtSelected.setText("$day1/$month1/$year1")
+                edtNext?.requestFocus()
+            }
+        })
     }
 
 }
