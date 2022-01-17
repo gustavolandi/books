@@ -224,21 +224,20 @@ class ReadAdapter(
         val cal = Calendar.getInstance()
         CustomDialog(context).showDatePickerDialog(cal,object : Action {
             override fun execute(selectedYear : Int, selectedMonth : Int, selectedDay : Int) {
-                var mes = selectedMonth + 1
-                var dia = selectedDay
-                val year1 = selectedYear.toString()
-                var month1 = (selectedMonth + 1).toString()
-                var day1 = selectedDay.toString()
-                if (dia < 10) {
-                    day1 = "0$day1"
-                }
-                if (mes < 10) {
-                    month1 = "0$month1"
-                }
-                edtSelected.setText("$day1/$month1/$year1")
+                val day = validateFieldDataZeros(selectedDay)
+                val month = validateFieldDataZeros(selectedMonth + 1)
+                edtSelected.setText("$day/$month/$selectedYear")
                 edtNext?.requestFocus()
             }
         })
+    }
+
+    private fun validateFieldDataZeros(field: Int) : String {
+        var fieldReturn = field.toString()
+        if (field < 10) {
+            fieldReturn = "0$fieldReturn"
+        }
+        return fieldReturn
     }
 
 }
