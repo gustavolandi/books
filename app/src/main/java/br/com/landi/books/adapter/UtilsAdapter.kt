@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import br.com.landi.books.R
+import br.com.landi.books.types.ErrorMessage
 import br.com.landi.books.types.GetStatus
 import br.com.landi.books.types.StatusRead
 import br.com.landi.books.utils.Action
@@ -121,23 +122,23 @@ class UtilsAdapter(val context: Context) {
             var validateFields = true
             if (spinner.selectedItem.toString() == StatusRead.STATUS_READING.status) {
                 if (edtStartDate.text.toString().isEmpty()) {
-                    edtStartDate.error = "Preencha o campo"
+                    edtStartDate.error = ErrorMessage.FIELD_NECESSARY.errorMessage
                     validateFields = false
                 }
             } else if (spinner.selectedItem.toString() == StatusRead.STATUS_FINISHED.status) {
                 if (edtStartDate.text.toString().isEmpty()) {
-                    edtStartDate.error = "Preencha o campo"
+                    edtStartDate.error = ErrorMessage.FIELD_NECESSARY.errorMessage
                     validateFields = false
                 } else if (edtFinishDate.text.toString().isEmpty()) {
-                    edtFinishDate.error = "Preencha o campo"
+                    edtFinishDate.error = ErrorMessage.FIELD_NECESSARY.errorMessage
                     validateFields = false
-                }
-                val startDate = Utils.getCalendarByDate(edtStartDate.text.toString())
-                val finishDate = Utils.getCalendarByDate(edtFinishDate.text.toString())
-                if (finishDate.timeInMillis < startDate.timeInMillis) {
-                    edtFinishDate.error =
-                        "Data final de leitura deve ser maior ou igual à data inicial de leitura"
-                    validateFields = false
+                } else {
+                    val startDate = Utils.getCalendarByDate(edtStartDate.text.toString())
+                    val finishDate = Utils.getCalendarByDate(edtFinishDate.text.toString())
+                    if (finishDate.timeInMillis < startDate.timeInMillis) {
+                        edtFinishDate.error = ErrorMessage.FINISH_DATE_WRONG.errorMessage
+                        validateFields = false
+                    }
                 }
             }
             return validateFields

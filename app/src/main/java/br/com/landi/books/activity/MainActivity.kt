@@ -19,18 +19,18 @@ import br.com.landi.books.model.Book
 import br.com.landi.books.model.Read
 import br.com.landi.books.repository.SQLiteHelper
 import br.com.landi.books.types.StatusRead
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
 import br.com.landi.books.utils.Utils.Companion.BOOK_AUTHOR_NAME
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_END
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_STARTED
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
 import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
-import java.text.SimpleDateFormat
-import java.util.*
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.IntentFilter
 import br.com.landi.books.utils.Utils.Companion.BOOK_GENRE
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
+import br.com.landi.books.utils.Utils.Companion.getDateNow
 
 
 class MainActivity : AppCompatActivity() {
@@ -170,46 +170,6 @@ class MainActivity : AppCompatActivity() {
         listViewSelected.visibility = View.VISIBLE
     }
 
-    fun initExamples(){
-        bookList = mutableListOf()
-        readList = mutableListOf()
-        bookList.add(
-            buildBook(
-                id = 1,
-                title = "Harry Potter e a Pedra Filosofal",
-                authorName = "J. K. Rowling"
-            )
-        )
-        bookList.add(
-            buildBook(
-                id = 2,
-                title = "Harry Potter e a Câmara Secreta",
-                authorName = "J. K. Rowling"
-            )
-        )
-        readList.add(
-            buildRead(
-                id = 1,
-                idBook = 1,
-                title = "Harry Potter e a Pedra Filosofal",
-                authorName = "J. K. Rowling",
-                startDate = "12/01/2022",
-                finishDate = "13/01/2022",
-                status = StatusRead.STATUS_FINISHED
-            )
-        )
-        readList.add(
-            buildRead(
-                id = 1,
-                idBook = 2,
-                title = "Harry Potter e a Câmara Secreta",
-                authorName = "J. K. Rowling",
-                startDate = "14/01/2022",
-                status = StatusRead.STATUS_READING
-            )
-        )
-    }
-
     fun buildRead(
         id: Long,
         idBook: Long,
@@ -230,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         genreList: MutableList<String> = mutableListOf(),
         readList: MutableList<Read> = mutableListOf()
     ) : Book {
-        val currentDate: String = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+        val currentDate: String = getDateNow()
         val book = Book(id, title, authorName, currentDate, genreList, readList)
         return book
     }

@@ -20,6 +20,7 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
 import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
 import android.widget.ArrayAdapter
 import br.com.landi.books.repository.SQLiteHelper
+import br.com.landi.books.types.ErrorMessage
 
 
 class AddBookActivity : AppCompatActivity() {
@@ -63,9 +64,9 @@ class AddBookActivity : AppCompatActivity() {
 
         btn.setOnClickListener {
             if (edtTitle.text.toString().isEmpty()) {
-                edtTitle.error  = "Preencha o campo"
+                edtTitle.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
             } else if (edtAuthor.text.toString().isEmpty()) {
-                edtAuthor.error  = "Preencha o campo"
+                edtAuthor.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
             } else {
                 var genres = if (edtGenre.text.toString().trim().isEmpty()) {
                     ArrayList()

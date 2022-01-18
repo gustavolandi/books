@@ -2,27 +2,25 @@ package br.com.landi.books.adapter
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.*
 import br.com.landi.books.R
+import br.com.landi.books.adapter.UtilsAdapter.Companion.spinnerDialogStatus
+import br.com.landi.books.adapter.UtilsAdapter.Companion.validateDialogStatusFields
 import br.com.landi.books.model.Book
 import br.com.landi.books.model.Read
 import br.com.landi.books.repository.SQLiteHelper
 import br.com.landi.books.types.GetStatus
 import br.com.landi.books.types.StatusRead
-import br.com.landi.books.utils.Action
 import br.com.landi.books.utils.Utils
-import br.com.landi.todolist.dialog.CustomDialog
-import java.util.*
-import android.content.Intent
-import android.content.res.Resources
-import android.view.View.GONE
-import android.view.View.VISIBLE
-import br.com.landi.books.adapter.UtilsAdapter.Companion.spinnerDialogStatus
-import br.com.landi.books.adapter.UtilsAdapter.Companion.validateDialogStatusFields
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
+import java.util.*
 
 
 class BookAdapter(

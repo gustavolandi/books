@@ -17,6 +17,7 @@ class Utils {
         const val BOOK_DATE_STARTED = "bookDateStarted"
         const val BOOK_DATE_END = "bookDateEnd"
         const val BOOK_READ_UPDATE = "BOOK_READ_UPDATE"
+        const val DATE_FORMAT = "dd/MM/yyyy"
 
         fun toastMessage(context: Context, message: String, duration: Int = Toast.LENGTH_LONG) {
             Toast.makeText(context,message,duration).show()
@@ -28,9 +29,13 @@ class Utils {
 
         fun getCalendarByDate(date : String) : Calendar {
             val calendar = Calendar.getInstance()
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val sdf = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
             calendar.time = sdf.parse(date)
             return calendar
+        }
+
+        fun getDateNow() : String {
+           return SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(Date())
         }
 
     }
