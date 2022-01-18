@@ -141,15 +141,25 @@ class MainActivity : AppCompatActivity() {
 
     fun getBookList(){
         val db = SQLiteHelper(this)
-        this.bookList = db.getBookList()
+        this.bookList = db.getBookList().sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it.title!! }).toMutableList()
         listViewBook()
     }
 
     fun getReadList(){
         val db = SQLiteHelper(this)
-        this.readList = db.getReadList()
+        val comparatorReadStatus = Comparator<Read>{ a, b ->
+            when {
+                (a.status == StatusRead.STATUS_FINISHED && b.status == StatusRead.STATUS_NOT_INITIALIZED) -> 1
+                (a.status == StatusRead.STATUS_FINISHED && b.status == StatusRead.STATUS_READING) -> 1
+                (a.status == StatusRead.STATUS_NOT_INITIALIZED && b.status == StatusRead.STATUS_READING) -> 1
+                else -> -1
+            }
+        }
+        this.readList = db.getReadList().sortedWith(comparatorReadStatus).toMutableList()
         listViewReadList()
     }
+
+
 
     fun saveBook(book: Book): Long {
         val db = SQLiteHelper(this)
