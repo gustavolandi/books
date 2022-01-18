@@ -29,6 +29,7 @@ import java.util.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
+import br.com.landi.books.utils.Utils.Companion.BOOK_GENRE
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 
 
@@ -92,7 +93,8 @@ class MainActivity : AppCompatActivity() {
                     val book = buildBook(
                         id = 1,
                         title = result.data?.getStringExtra(BOOK_TITLE),
-                        authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME)
+                        authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME),
+                        genreList = result.data?.getStringArrayListExtra(BOOK_GENRE)!!
                     )
                     val idBook = saveBook(book)
                     if (result.data?.getBooleanExtra(BOOK_READ_LIST, false) == true) {

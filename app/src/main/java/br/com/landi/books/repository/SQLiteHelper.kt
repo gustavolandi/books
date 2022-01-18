@@ -5,9 +5,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import br.com.landi.books.model.Book
+import br.com.landi.books.model.Genre
 import br.com.landi.books.model.Read
 import br.com.landi.books.types.GetStatus
-import br.com.landi.books.types.StatusRead
 import java.lang.Exception
 
 class SQLiteHelper(context: Context) :
@@ -56,14 +56,16 @@ class SQLiteHelper(context: Context) :
         val cursor = db.rawQuery("SELECT $TBX_AUTHORS.$AUTHOR_NAME, $TBX_BOOKS.* FROM $TBX_BOOKS " +
                 "INNER JOIN $TBX_AUTHORS ON $TBX_AUTHORS.$ID = $TBX_BOOKS.$ID_AUTHOR",
             null)
+        val genreList = getGenres()
         val bookList: MutableList<Book> = mutableListOf()
         while (cursor.moveToNext()) {
+            val genreBookList = getGenresBook(cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")))
             bookList.add(
                 Book(id = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")),
                     title = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS.$TITLE")),
                     authorName = cursor.getString(cursor.getColumnIndex("$TBX_AUTHORS.$AUTHOR_NAME")),
                     registerDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS.$DATE_REGISTER")),
-                    genreList = getGenresBooksById(cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")))
+                    genreList = genreBookList.map { item -> genreList.filter { it.id == item}[0].genre}.toMutableList()
                 )
             )
         }
@@ -188,14 +190,24 @@ class SQLiteHelper(context: Context) :
         return null
     }
 
-    fun getGenres() : MutableList<String> {
+    fun getGenres() : MutableList<Genre> {
         val db = this.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM $TBX_GENRES", null)
-        val genreList: MutableList<String> = mutableListOf()
+        val genreList: MutableList<Genre> = mutableListOf()
         while (cursor.moveToNext()) {
-            genreList.add(cursor.getString(cursor.getColumnIndex(GENRE)))
+            genreList.add(Genre(id = cursor.getLong(cursor.getColumnIndex(ID)),genre = cursor.getString(cursor.getColumnIndex(GENRE))))
         }
         return genreList
+    }
+
+    fun getGenres(genre: String) : MutableList<String>{
+        val db = this.readableDatabase
+        val list = mutableListOf<String>()
+        val cursor = db.rawQuery("SELECT $GENRE FROM $TBX_GENRES WHERE $GENRE LIKE '%$genre%'", null)
+        while (cursor.moveToNext()) {
+            list.add(cursor.getString(cursor.getColumnIndex(GENRE)))
+        }
+        return list
     }
 
     fun getGenreByName(genre: String) : Long {
@@ -208,26 +220,21 @@ class SQLiteHelper(context: Context) :
         }
     }
 
+    fun getGenresBook(idBook: Long) : MutableList<Long> {
+        val db = this.readableDatabase
+        val list = mutableListOf<Long>()
+        val cursor = db.rawQuery("SELECT $ID_GENRE FROM $TBX_GENRES_BOOKS WHERE $ID_BOOK = $idBook", null)
+        while (cursor.moveToNext()) {
+            list.add(cursor.getLong(cursor.getColumnIndex(ID_GENRE)))
+        }
+        return list
+    }
+
     fun saveGenre(genre: String) : Long {
         val db = this.writableDatabase
         val ctv = ContentValues()
         ctv.put(GENRE, genre)
         return db.insert(TBX_GENRES, ID, ctv)
-    }
-
-
-    fun getGenreById(id: String) {
-
-    }
-
-    fun getGenresBooksById(idBook: Long) : MutableList<String> {
-        val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $TBX_GENRES_BOOKS WHERE $ID_BOOK = $idBook", null)
-        val genreList: MutableList<String> = mutableListOf()
-        while (cursor.moveToNext()) {
-            genreList.add(cursor.getString(cursor.getColumnIndex(GENRE)))
-        }
-        return genreList
     }
 
     companion object {

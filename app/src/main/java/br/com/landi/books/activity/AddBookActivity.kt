@@ -67,13 +67,18 @@ class AddBookActivity : AppCompatActivity() {
             } else if (edtAuthor.text.toString().isEmpty()) {
                 edtAuthor.error  = "Preencha o campo"
             } else {
+                var genres = if (edtGenre.text.toString().trim().isEmpty()) {
+                    ArrayList()
+                } else {
+                    ArrayList(edtGenre.text.toString().split(" ").filter { it.trim().isNotEmpty() })
+                }
                 with(Intent()) {
                     putExtra(BOOK_TITLE, edtTitle.text.toString())
                     putExtra(BOOK_AUTHOR_NAME, edtAuthor.text.toString())
-                    putExtra(BOOK_GENRE, edtGenre.text.toString())
                     putExtra(BOOK_READ_LIST, cbReadList.isChecked)
                     putExtra(BOOK_DATE_STARTED, edtDateStart.text.toString())
                     putExtra(BOOK_DATE_END, edtDateFinish.text.toString())
+                    putStringArrayListExtra(BOOK_GENRE, genres)
                     setResult(Activity.RESULT_OK, this)
                 }
                 finish()
