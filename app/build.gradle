@@ -22,6 +22,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            def appName = "books"
+            outputFileName = appName + "-${variant.versionName}.apk"
+        }
+    }
 }
 
 dependencies {
