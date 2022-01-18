@@ -134,8 +134,25 @@ class SQLiteHelper(context: Context) :
         return db.insert(TBX_AUTHORS, ID, ctv)
     }
 
-    fun getAuthors(){
+    fun getAuthors() : MutableList<String>{
+        val db = this.readableDatabase
+        val list = mutableListOf<String>()
+        val cursor = db.rawQuery("SELECT $AUTHOR_NAME FROM $TBX_AUTHORS", null)
+        while (cursor.moveToNext()) {
+            list.add(cursor.getString(cursor.getColumnIndex(AUTHOR_NAME)))
+        }
+        return list
+    }
 
+
+    fun getAuthors(author: String) : MutableList<String>{
+        val db = this.readableDatabase
+        val list = mutableListOf<String>()
+        val cursor = db.rawQuery("SELECT $AUTHOR_NAME FROM $TBX_AUTHORS WHERE $AUTHOR_NAME LIKE '%$author%'", null)
+        while (cursor.moveToNext()) {
+            list.add(cursor.getString(cursor.getColumnIndex(AUTHOR_NAME)))
+        }
+        return list
     }
 
     fun saveGenresBooks(genreList: MutableList<String>, idBook: Long) {
