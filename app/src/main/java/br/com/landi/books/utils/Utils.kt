@@ -18,6 +18,9 @@ class Utils {
         const val BOOK_DATE_END = "bookDateEnd"
         const val BOOK_READ_UPDATE = "BOOK_READ_UPDATE"
         const val DATE_FORMAT = "dd/MM/yyyy"
+        const val NO_FILTER = "Sem filtro"
+        const val FILTER_AUTHOR = "Autor(a)"
+        const val FILTER_GENRE = "Gênero"
 
         fun toastMessage(context: Context, message: String, duration: Int = Toast.LENGTH_LONG) {
             Toast.makeText(context,message,duration).show()

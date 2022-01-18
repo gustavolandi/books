@@ -65,11 +65,50 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:visibility="gone"
+        android:id="@+id/linearLayoutFilter"
+        android:layout_below="@+id/linearLayoutBtnOption"
+        android:layout_marginTop="10dp"
+        >
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_left_arrow"
+            android:id="@+id/imgBackFilter"
+            android:layout_weight="0.20"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txvBookFilter"
+            android:layout_weight="0.60"
+            android:text=""
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_right_arrow"
+            android:id="@+id/imgNextFilter"
+            android:layout_weight="0.20"
+            />
+
+    </LinearLayout>
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ltwBooks"
-        android:layout_below="@+id/linearLayoutBtnOption"
+        android:layout_below="@+id/linearLayoutFilter"
         android:layout_marginTop="10dp">
     </ListView>
 
@@ -77,7 +116,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ltwRead"
-        android:layout_below="@+id/linearLayoutBtnOption"
+        android:layout_below="@+id/linearLayoutFilter"
         android:layout_marginTop="10dp"
         android:visibility="gone">
     </ListView>

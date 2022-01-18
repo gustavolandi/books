@@ -1,14 +1,12 @@
 package br.com.landi.books.activity
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ListView
-import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +21,8 @@ import br.com.landi.books.types.StatusRead
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
+import android.widget.*
+import br.com.landi.books.utils.Action
 import br.com.landi.books.utils.Utils.Companion.BOOK_AUTHOR_NAME
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_END
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_STARTED
@@ -30,6 +30,9 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
 import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
 import br.com.landi.books.utils.Utils.Companion.BOOK_GENRE
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
+import br.com.landi.books.utils.Utils.Companion.FILTER_AUTHOR
+import br.com.landi.books.utils.Utils.Companion.FILTER_GENRE
+import br.com.landi.books.utils.Utils.Companion.NO_FILTER
 import br.com.landi.books.utils.Utils.Companion.getDateNow
 
 
@@ -40,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listViewBook : ListView
     private lateinit var listViewRead : ListView
     private lateinit var intentLauncher : ActivityResultLauncher<Intent>
+    private var spinnerSelected = 0
+    private var authorSelected = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -216,6 +221,120 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun dialogFilter(){
+        val listFilter = listOf(NO_FILTER, FILTER_AUTHOR, FILTER_GENRE)
+        val dataAdapter: ArrayAdapter<String> = ArrayAdapter(
+            this,
+            R.layout.spinner_layout, listFilter
+        )
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        with(Dialog(this)) {
+            setContentView(R.layout.dialog_filter)
+            setCancelable(true)
+            setCanceledOnTouchOutside(true)
+            val spinner = findViewById<Spinner>(R.id.spinnerFilterTodo)
+            spinner.adapter = dataAdapter
+            spinner.setSelection(spinnerSelected)
+            val btnOk = findViewById<RelativeLayout>(R.id.btnSubmitFilterTodo)
+            btnOk.setOnClickListener {
+                spinnerSelected = spinner.selectedItemPosition
+                when(spinner.selectedItem.toString()) {
+                    NO_FILTER -> noFilter()
+                    FILTER_AUTHOR -> filterByAuthor()
+                    FILTER_GENRE -> filterByGenre()
+                }
+                dismiss()
+            }
+            show()
+        }
+    }
+
+    fun filterLayout(backAction: Action, nextAction: Action, txvAction: Action) {
+        val linearLayoutFilter : LinearLayout = findViewById(R.id.linearLayoutFilter)
+        linearLayoutFilter.visibility = View.VISIBLE
+        val txv : TextView = findViewById(R.id.txvBookFilter)
+        val imgBack : ImageView = findViewById(R.id.imgBackFilter)
+        val imgNext : ImageView = findViewById(R.id.imgNextFilter)
+        imgBack.setOnClickListener { backAction.execute() }
+        imgNext.setOnClickListener { nextAction.execute() }
+        txv.setOnClickListener { txvAction.execute() }
+    }
+
+    private fun noFilter() {
+        val linearLayoutFilter : LinearLayout = findViewById(R.id.linearLayoutFilter)
+        linearLayoutFilter.visibility = View.GONE
+        listViewBook()
+        listViewReadList()
+    }
+
+    private fun filterByAuthor() {
+        val db = SQLiteHelper(this)
+        var authorList = db.getAuthors()
+        if (authorList.isNotEmpty()) {
+            val authorsSortedBy: List<String> = authorList.sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it })
+            filterAuthor(authorsSortedBy)
+            filterLayout(
+                nextAction = object : Action {
+                    override fun execute() {
+                        if (++authorSelected >= authorsSortedBy.size) {
+                            authorSelected = 0
+                        }
+                        filterAuthor(authorsSortedBy)
+                    }
+                },
+                backAction = object : Action {
+                    override fun execute() {
+                        if (--authorSelected < 0) {
+                            authorSelected = authorsSortedBy.size - 1
+                        }
+                        filterAuthor(authorsSortedBy)
+                    }
+                },
+                txvAction = object : Action {
+                    override fun execute() {
+                        dialogFilterAuthor(authorsSortedBy)
+                    }
+                }
+            )
+        }
+    }
+
+    private fun dialogFilterAuthor(authorList: List<String>) {
+        val dataAdapter: ArrayAdapter<String> = ArrayAdapter(
+            this,
+            R.layout.spinner_layout, authorList
+        )
+        val context = this
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        with(Dialog(context)) {
+            setContentView(R.layout.dialog_filter)
+            setCancelable(true)
+            setCanceledOnTouchOutside(true)
+            val spinner = findViewById<RelativeLayout>(R.id.spinnerFilterTodo) as Spinner
+            spinner.adapter = dataAdapter
+            spinner.setSelection(authorSelected)
+            val btnOk = findViewById<RelativeLayout>(R.id.btnSubmitFilterTodo) as RelativeLayout
+            btnOk.setOnClickListener {
+                authorSelected = spinner.selectedItemPosition
+                filterAuthor(authorList)
+                dismiss()
+            }
+            show()
+        }
+    }
+
+    fun filterAuthor(authorList: List<String>) {
+        val authorsSortedBy: List<String> = authorList.sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it })
+        val bookListAuthors = this.bookList.filter { it.authorName == authorsSortedBy[authorSelected] }.toMutableList()
+        val readListAuthors = this.readList.filter { it.authorName == authorsSortedBy[authorSelected] }.toMutableList()
+        val txv : TextView = findViewById(R.id.txvBookFilter)
+        txv.text = authorList[authorSelected]
+        listViewBook(bookListAuthors)
+        listViewReadList(readListAuthors)
+    }
+
+    private fun filterByGenre()  {
 
     }
+
+
 }
