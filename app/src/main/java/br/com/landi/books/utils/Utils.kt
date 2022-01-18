@@ -3,6 +3,8 @@ package br.com.landi.books.utils
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import br.com.landi.books.model.Read
+import br.com.landi.books.types.StatusRead
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,6 +41,17 @@ class Utils {
 
         fun getDateNow() : String {
            return SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(Date())
+        }
+
+        fun comparatorReadStatus() : Comparator<Read> {
+            return Comparator<Read>{ a, b ->
+                when {
+                    (a.status == StatusRead.STATUS_FINISHED && b.status == StatusRead.STATUS_NOT_INITIALIZED) -> 1
+                    (a.status == StatusRead.STATUS_FINISHED && b.status == StatusRead.STATUS_READING) -> 1
+                    (a.status == StatusRead.STATUS_NOT_INITIALIZED && b.status == StatusRead.STATUS_READING) -> 1
+                    else -> -1
+                }
+            }
         }
 
     }

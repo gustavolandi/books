@@ -126,7 +126,10 @@ class ReadAdapter(
 
     private fun updateStatus(status: StatusRead, startedDate : String, finishDate : String, position: Int) {
         val db  = SQLiteHelper(context)
-        list = db.updateReadBook(Read(id = getItem(position).id,startedDate = startedDate,finishedDate = finishDate, status = status))
+        list = db
+            .updateReadBook(Read(id = getItem(position).id,startedDate = startedDate,finishedDate = finishDate, status = status))
+            .sortedWith(Utils.comparatorReadStatus())
+            .toMutableList()
         refresh(list)
     }
 

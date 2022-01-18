@@ -33,6 +33,7 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 import br.com.landi.books.utils.Utils.Companion.FILTER_AUTHOR
 import br.com.landi.books.utils.Utils.Companion.FILTER_GENRE
 import br.com.landi.books.utils.Utils.Companion.NO_FILTER
+import br.com.landi.books.utils.Utils.Companion.comparatorReadStatus
 import br.com.landi.books.utils.Utils.Companion.getDateNow
 
 
@@ -147,15 +148,7 @@ class MainActivity : AppCompatActivity() {
 
     fun getReadList(){
         val db = SQLiteHelper(this)
-        val comparatorReadStatus = Comparator<Read>{ a, b ->
-            when {
-                (a.status == StatusRead.STATUS_FINISHED && b.status == StatusRead.STATUS_NOT_INITIALIZED) -> 1
-                (a.status == StatusRead.STATUS_FINISHED && b.status == StatusRead.STATUS_READING) -> 1
-                (a.status == StatusRead.STATUS_NOT_INITIALIZED && b.status == StatusRead.STATUS_READING) -> 1
-                else -> -1
-            }
-        }
-        this.readList = db.getReadList().sortedWith(comparatorReadStatus).toMutableList()
+        this.readList = db.getReadList().sortedWith(comparatorReadStatus()).toMutableList()
         listViewReadList()
     }
 
