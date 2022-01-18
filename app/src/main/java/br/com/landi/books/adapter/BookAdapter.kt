@@ -17,6 +17,9 @@ import br.com.landi.books.utils.Utils
 import br.com.landi.todolist.dialog.CustomDialog
 import java.util.*
 import android.content.Intent
+import android.content.res.Resources
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 
 
@@ -38,18 +41,19 @@ class BookAdapter(
             return@setOnLongClickListener(true)
         }
 
-        val c: Book = getItem(position)
+        val book: Book = getItem(position)
         val txvBookTitle =
             v.findViewById<View>(R.id.txvBookTitle) as TextView
         val txvBookAuthorName =
             v.findViewById<View>(R.id.txvBookAuthor) as TextView
         val iconAddBookReadList =
             v.findViewById<View>(R.id.imgAddBookReadList) as ImageView
-        txvBookTitle.text = c.title
-        txvBookAuthorName.text = c.authorName
+        txvBookTitle.text = book.title
+        txvBookAuthorName.text = book.authorName
         iconAddBookReadList.setOnClickListener {
             dialogUpdateStatus(status = StatusRead.STATUS_NOT_INITIALIZED,position)
         }
+        addGenres(v,book)
         return v
     }
 
@@ -216,6 +220,58 @@ class BookAdapter(
             fieldReturn = "0$fieldReturn"
         }
         return fieldReturn
+    }
+
+    private fun addGenres(v: View,book: Book) {
+        val relativeLayout =
+            v.findViewById<View>(R.id.rlLayoutGenres) as RelativeLayout
+        if (book.genreList.size == 0) {
+            relativeLayout.visibility = GONE
+            return
+        }
+        relativeLayout.visibility = VISIBLE
+        relativeLayout.removeAllViewsInLayout()
+        var txSize = 0f
+        var id = 0
+        var firstId = 0
+        var line = 0
+        var belowId = 0
+        for (i in book.genreList) {
+            val params = RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            val tv = TextView(context)
+            tv.text = i
+            tv.id = View.generateViewId()
+            tv.textSize = 15F
+            tv.background = v.resources.getDrawable(
+                R.drawable.bordered_rectangle_rounded_corners,
+                null
+            )
+            val textSize = (tv.textSize * i.length)
+            txSize += textSize
+            if (txSize >= Resources.getSystem().displayMetrics.widthPixels) {
+                belowId = firstId
+                firstId = tv.id
+                params.addRule(RelativeLayout.BELOW, belowId)
+                params.setMargins(5, 5, 0, 0)
+                txSize = 0f
+                line++
+            } else {
+                params.addRule(RelativeLayout.RIGHT_OF, id)
+                params.setMargins(5, 5, 0, 0)
+                if (line != 0) {
+                    params.addRule(RelativeLayout.BELOW, belowId)
+                }
+            }
+            tv.layoutParams = params
+            relativeLayout.addView(tv)
+            if (id == 0) {
+                firstId = tv.id
+            }
+            id = tv.id
+        }
     }
 
 }
