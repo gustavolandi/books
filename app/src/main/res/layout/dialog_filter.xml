@@ -15,7 +15,7 @@
         >
 
         <Spinner
-            android:id="@+id/spinnerFilterTodo"
+            android:id="@+id/spinnerFilterBooks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
@@ -29,7 +29,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/btnSubmitFilterTodo"
+        android:id="@+id/btnSubmitFilterBooks"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_centerHorizontal="true"

@@ -74,12 +74,12 @@ class SQLiteHelper(context: Context) :
 
     fun getReadList() : MutableList<Read> {
         val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT $TBX_BOOKS.$TITLE, $TBX_AUTHORS.$AUTHOR_NAME, $TBX_BOOKS_READ.* " +
-                "FROM $TBX_BOOKS_READ INNER JOIN $TBX_BOOKS ON $TBX_BOOKS.$ID = $TBX_BOOKS_READ.$ID_BOOK " +
-                "INNER JOIN $TBX_AUTHORS ON $TBX_AUTHORS.$ID = $TBX_BOOKS.$ID_AUTHOR",
+        val cursor = db.rawQuery("SELECT $TBX_BOOKS.*, $TBX_AUTHORS.$AUTHOR_NAME, $TBX_BOOKS_READ.* FROM $TBX_BOOKS_READ INNER JOIN $TBX_BOOKS ON $TBX_BOOKS.$ID = $TBX_BOOKS_READ.$ID_BOOK INNER JOIN $TBX_AUTHORS ON $TBX_AUTHORS.$ID = $TBX_BOOKS.$ID_AUTHOR",
             null)
         val readList: MutableList<Read> = mutableListOf()
+        val genreList = getGenres()
         while (cursor.moveToNext()) {
+            val genreBookList = getGenresBook(cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS_READ.$ID_BOOK")))
             readList.add(
                 Read(id = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS_READ.$ID")),
                     idBook = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")),
@@ -87,7 +87,8 @@ class SQLiteHelper(context: Context) :
                     authorName = cursor.getString(cursor.getColumnIndex("$TBX_AUTHORS.$AUTHOR_NAME")),
                     status = GetStatus.getStatus(cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$STATUS"))),
                     startedDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$DATE_STARTED")),
-                    finishedDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$DATE_FINISHED"))
+                    finishedDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$DATE_FINISHED")),
+                    genreList = genreBookList.map { item -> genreList.filter { it.id == item}[0].genre}.toMutableList()
                 )
             )
         }
@@ -196,6 +197,16 @@ class SQLiteHelper(context: Context) :
         val genreList: MutableList<Genre> = mutableListOf()
         while (cursor.moveToNext()) {
             genreList.add(Genre(id = cursor.getLong(cursor.getColumnIndex(ID)),genre = cursor.getString(cursor.getColumnIndex(GENRE))))
+        }
+        return genreList
+    }
+
+    fun getListGenre(): MutableList<String> {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TBX_GENRES", null)
+        val genreList: MutableList<String> = mutableListOf()
+        while (cursor.moveToNext()) {
+            genreList.add(cursor.getString(cursor.getColumnIndex(GENRE)))
         }
         return genreList
     }
