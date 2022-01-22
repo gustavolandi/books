@@ -2,6 +2,7 @@ package br.com.landi.books.adapter
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +15,8 @@ import br.com.landi.books.types.StatusRead
 import br.com.landi.books.utils.Utils
 import br.com.landi.books.adapter.UtilsAdapter.Companion.spinnerDialogStatus
 import br.com.landi.books.adapter.UtilsAdapter.Companion.validateDialogStatusFields
+import br.com.landi.books.utils.Action
+import br.com.landi.todolist.dialog.CustomDialog
 import java.util.*
 
 
@@ -33,6 +36,19 @@ class ReadAdapter(
 
         }
         v.setOnLongClickListener {
+            with(CustomDialog(context)) {
+                cancelable = true
+                message = "Deseja deletar o livro selecionado?"
+                title = "Deletar Livro"
+                showDialog(object : Action {
+                    override fun execute() {
+                        val db = SQLiteHelper(context)
+                        db.deleteItemReadList(getItemId(position))
+                        context.sendBroadcast(Intent(Utils.BOOK_READ_UPDATE))
+                        Utils.toastMessage(context, "Livro deletado com sucesso")
+                    }
+                })
+            }
             return@setOnLongClickListener(true)
         }
 

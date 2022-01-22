@@ -130,6 +130,11 @@ class SQLiteHelper(context: Context) :
         db.insert(TBX_BOOKS_READ, ID, ctv)
     }
 
+    fun deleteItemReadList(id: Long) {
+        val db = this.writableDatabase
+        db.delete(TBX_BOOKS_READ, "$ID = $id", null)
+    }
+
     fun saveAuthor(authorName: String) : Long {
         val db = this.writableDatabase
         val ctv = ContentValues()
