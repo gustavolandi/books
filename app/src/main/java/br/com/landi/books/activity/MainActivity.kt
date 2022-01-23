@@ -32,6 +32,7 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
 import br.com.landi.books.utils.Utils.Companion.BOOK_GENRE
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 import br.com.landi.books.utils.Utils.Companion.FILTER_AUTHOR
+import br.com.landi.books.utils.Utils.Companion.FILTER_COLLECTION
 import br.com.landi.books.utils.Utils.Companion.FILTER_GENRE
 import br.com.landi.books.utils.Utils.Companion.NO_FILTER
 import br.com.landi.books.utils.Utils.Companion.comparatorDate
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var filterSelected = 0
     private var authorSelected = 0
     private var genreSelected = 0
+    private var collectionSelected = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -228,7 +230,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun dialogFilter(){
-        val listFilter = listOf(NO_FILTER, FILTER_AUTHOR, FILTER_GENRE)
+        val listFilter = listOf(NO_FILTER, FILTER_AUTHOR, FILTER_GENRE, FILTER_COLLECTION)
         val dataAdapter: ArrayAdapter<String> = ArrayAdapter(
             this,
             R.layout.spinner_layout, listFilter
@@ -247,6 +249,7 @@ class MainActivity : AppCompatActivity() {
                 when(spinner.selectedItem.toString()) {
                     NO_FILTER -> noFilter()
                     FILTER_AUTHOR -> filterByAuthor()
+                    FILTER_COLLECTION -> filterByCollection()
                     FILTER_GENRE -> filterByGenre()
                 }
                 dismiss()
@@ -325,6 +328,8 @@ class MainActivity : AppCompatActivity() {
                     btnOkFilterAuthor(this,list)
                 } else if (filterSelected == 2) {
                     btnOkFilterGenre(this,list)
+                } else if (filterSelected == 3) {
+                    btnOkFilterCollection(this,list)
                 }
                 dismiss()
             }
@@ -342,6 +347,12 @@ class MainActivity : AppCompatActivity() {
         val spinner = dialog.findViewById<Spinner>(R.id.spinnerFilterBooks)
         genreSelected = spinner.selectedItemPosition
         filterGenre(genreList)
+    }
+
+    private fun btnOkFilterCollection(dialog: Dialog, collectionList: List<String>) {
+        val spinner = dialog.findViewById<Spinner>(R.id.spinnerFilterBooks)
+        collectionSelected = spinner.selectedItemPosition
+        filterCollection(collectionList)
     }
 
     fun filterAuthor(authorList: List<String>) {
@@ -392,6 +403,46 @@ class MainActivity : AppCompatActivity() {
         txv.text = genreListSorted[genreSelected]
         listViewBook(this.bookList.filter { it.genreList.contains(genreListSorted[genreSelected]) }.toMutableList())
         listViewReadList(this.readList.filter { it.genreList.contains(genreListSorted[genreSelected]) }.toMutableList())
+    }
+
+    fun filterCollection(collectionList: List<String>) {
+        val collectionListSorted: List<String> = collectionList.sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it })
+        val txv : TextView = findViewById(R.id.txvBookFilter)
+        txv.text = collectionListSorted[collectionSelected]
+        listViewBook(this.bookList.filter { it.collectionName == collectionListSorted[collectionSelected] }.toMutableList())
+        listViewReadList(this.readList.filter { it.collectionName == collectionListSorted[collectionSelected] }.toMutableList())
+    }
+
+    private fun filterByCollection()  {
+        val db = SQLiteHelper(this)
+        var collectionList = db.getCollections()
+        if (collectionList.isNotEmpty()) {
+            val collectionSortedBy = collectionList.map{it.collectionName}.sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it })
+            filterCollection(collectionSortedBy)
+            filterLayout(
+                nextAction = object : Action {
+                    override fun execute() {
+                        if (++collectionSelected >= collectionSortedBy.size) {
+                            collectionSelected = 0
+                        }
+                        filterCollection(collectionSortedBy)
+                    }
+                },
+                backAction = object : Action {
+                    override fun execute() {
+                        if (--collectionSelected < 0) {
+                            collectionSelected = collectionSortedBy.size - 1
+                        }
+                        filterCollection(collectionSortedBy)
+                    }
+                },
+                txvAction = object : Action {
+                    override fun execute() {
+                        dialogFilterAuthor(collectionSortedBy,collectionSelected)
+                    }
+                }
+            )
+        }
     }
 
 

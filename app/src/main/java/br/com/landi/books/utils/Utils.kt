@@ -24,6 +24,7 @@ class Utils {
         const val DATE_FORMAT = "dd/MM/yyyy"
         const val NO_FILTER = "Sem filtro"
         const val FILTER_AUTHOR = "Autor(a)"
+        const val FILTER_COLLECTION = "Coleção"
         const val FILTER_GENRE = "Gênero"
 
         fun toastMessage(context: Context, message: String, duration: Int = Toast.LENGTH_LONG) {

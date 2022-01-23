@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import br.com.landi.books.model.Book
+import br.com.landi.books.model.CollectionBook
 import br.com.landi.books.model.Genre
 import br.com.landi.books.model.Read
 import br.com.landi.books.types.GetStatus
@@ -62,15 +63,18 @@ class SQLiteHelper(context: Context) :
                 "INNER JOIN $TBX_AUTHORS ON $TBX_AUTHORS.$ID = $TBX_BOOKS.$ID_AUTHOR",
             null)
         val genreList = getGenres()
+        val collectionList = getCollections()
         val bookList: MutableList<Book> = mutableListOf()
         while (cursor.moveToNext()) {
             val genreBookList = getGenresBook(cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")))
+            val idCollectionBook : Long? = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID_COLLECTION"))
             bookList.add(
                 Book(id = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")),
                     title = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS.$TITLE")),
                     authorName = cursor.getString(cursor.getColumnIndex("$TBX_AUTHORS.$AUTHOR_NAME")),
                     registerDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS.$DATE_REGISTER")),
-                    genreList = genreBookList.map { item -> genreList.filter { it.id == item}[0].genre}.toMutableList()
+                    genreList = genreBookList.map { item -> genreList.filter { it.id == item}[0].genre}.toMutableList(),
+                    collectionName = validateCollectionBook(idCollectionBook,collectionList)
                 )
             )
         }
@@ -83,8 +87,10 @@ class SQLiteHelper(context: Context) :
             null)
         val readList: MutableList<Read> = mutableListOf()
         val genreList = getGenres()
+        val collectionList = getCollections()
         while (cursor.moveToNext()) {
             val genreBookList = getGenresBook(cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS_READ.$ID_BOOK")))
+            val idCollectionBook : Long? = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID_COLLECTION"))
             readList.add(
                 Read(id = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS_READ.$ID")),
                     idBook = cursor.getLong(cursor.getColumnIndex("$TBX_BOOKS.$ID")),
@@ -93,11 +99,19 @@ class SQLiteHelper(context: Context) :
                     status = GetStatus.getStatus(cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$STATUS"))),
                     startedDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$DATE_STARTED")),
                     finishedDate = cursor.getString(cursor.getColumnIndex("$TBX_BOOKS_READ.$DATE_FINISHED")),
-                    genreList = genreBookList.map { item -> genreList.filter { it.id == item}[0].genre}.toMutableList()
+                    genreList = genreBookList.map { item -> genreList.filter { it.id == item}[0].genre}.toMutableList(),
+                    collectionName = validateCollectionBook(idCollectionBook,collectionList)
                 )
             )
         }
         return readList
+    }
+
+    private fun validateCollectionBook(idCollectionBook: Long?, collectionList: MutableList<CollectionBook>) : String? {
+        if (idCollectionBook != null && idCollectionBook != 0L) {
+            return collectionList.filter { it.id == idCollectionBook }[0].collectionName
+        }
+        return null
     }
 
     fun saveBook(book: Book) : Long {
@@ -105,16 +119,18 @@ class SQLiteHelper(context: Context) :
         if (idAuthor == null) {
             idAuthor = saveAuthor(book.authorName!!)
         }
-        var idCollection: Long? = getCollectionByName(book.collectionName)
-        if (idCollection == null) {
-            idCollection = saveCollection(book.collectionName)
-        }
         val db = this.writableDatabase
         val ctv = ContentValues()
         ctv.put(TITLE, book.title)
         ctv.put(ID_AUTHOR, idAuthor)
-        ctv.put(ID_COLLECTION, idCollection)
         ctv.put(DATE_REGISTER, book.registerDate)
+        if (book.collectionName?.isNotEmpty() == true) {
+            var idCollection: Long? = getCollectionByName(book.collectionName!!)
+            if (idCollection == null) {
+                idCollection = saveCollection(book.collectionName!!)
+            }
+            ctv.put(ID_COLLECTION, idCollection)
+        }
         val id = db.insert(TBX_BOOKS, ID, ctv)
         saveGenresBooks(book.genreList,id)
         return id
@@ -179,6 +195,19 @@ class SQLiteHelper(context: Context) :
         val cursor = db.rawQuery("SELECT $COLLECTION_NAME FROM $TBX_COLLECTIONS WHERE $COLLECTION_NAME LIKE '%$collection%'", null)
         while (cursor.moveToNext()) {
             list.add(cursor.getString(cursor.getColumnIndex(COLLECTION_NAME)))
+        }
+        return list
+    }
+
+    fun getCollections() : MutableList<CollectionBook>{
+        val db = this.readableDatabase
+        val list = mutableListOf<CollectionBook>()
+        val cursor = db.rawQuery("SELECT * FROM $TBX_COLLECTIONS", null)
+        while (cursor.moveToNext()) {
+            list.add(CollectionBook(id = cursor.getLong(cursor.getColumnIndex(ID)),
+                collectionName = cursor.getString(cursor.getColumnIndex(COLLECTION_NAME))
+            ))
+
         }
         return list
     }
