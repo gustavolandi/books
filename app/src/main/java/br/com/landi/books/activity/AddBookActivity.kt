@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
@@ -19,6 +20,7 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_GENRE
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
 import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
 import android.widget.ArrayAdapter
+import br.com.landi.books.adapter.UtilsAdapter
 import br.com.landi.books.repository.SQLiteHelper
 import br.com.landi.books.types.ErrorMessage
 import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION
@@ -28,6 +30,8 @@ class AddBookActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_book)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setHomeButtonEnabled(true)
         init()
     }
 
@@ -42,6 +46,15 @@ class AddBookActivity : AppCompatActivity() {
             }
         }
         validateFieldsAndSave()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun validateFieldsAndSave() {
@@ -73,6 +86,42 @@ class AddBookActivity : AppCompatActivity() {
             }
         }
         edtCollectionName.addTextChangedListener(textWatcherCollections)
+        edtDateStart.setOnClickListener {
+            UtilsAdapter.selectDate(
+                this,
+                edtDateStart,
+                edtDateFinish,
+                maxDate = edtDateFinish.text.toString()
+            )
+        }
+        edtDateStart.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                UtilsAdapter.selectDate(
+                    this,
+                    edtDateStart,
+                    edtDateFinish,
+                    maxDate = edtDateFinish.text.toString()
+                )
+            }
+        }
+        edtDateFinish.setOnClickListener {
+            UtilsAdapter.selectDate(
+                this,
+                edtDateFinish,
+                null,
+                minDate = edtDateStart.text.toString()
+            )
+        }
+        edtDateFinish.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                UtilsAdapter.selectDate(
+                    this,
+                    edtDateFinish,
+                    null,
+                    minDate = edtDateStart.text.toString()
+                )
+            }
+        }
         btn.setOnClickListener {
             if (edtTitle.text.toString().isEmpty()) {
                 edtTitle.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
