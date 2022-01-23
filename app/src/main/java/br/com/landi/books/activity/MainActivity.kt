@@ -24,6 +24,7 @@ import android.content.IntentFilter
 import android.widget.*
 import br.com.landi.books.utils.Action
 import br.com.landi.books.utils.Utils.Companion.BOOK_AUTHOR_NAME
+import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_END
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_STARTED
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
@@ -102,7 +103,8 @@ class MainActivity : AppCompatActivity() {
                         id = 1,
                         title = result.data?.getStringExtra(BOOK_TITLE),
                         authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME),
-                        genreList = result.data?.getStringArrayListExtra(BOOK_GENRE)!!
+                        genreList = result.data?.getStringArrayListExtra(BOOK_GENRE)!!,
+                        collectionName = result.data?.getStringExtra(BOOK_COLLECTION)!!
                     )
                     val idBook = saveBook(book)
                     if (result.data?.getBooleanExtra(BOOK_READ_LIST, false) == true) {
@@ -198,11 +200,11 @@ class MainActivity : AppCompatActivity() {
         title: String?,
         authorName: String?,
         genreList: MutableList<String> = mutableListOf(),
-        readList: MutableList<Read> = mutableListOf()
-    ) : Book {
+        readList: MutableList<Read> = mutableListOf(),
+        collectionName: String = ""
+    ): Book {
         val currentDate: String = getDateNow()
-        val book = Book(id, title, authorName, currentDate, genreList, readList)
-        return book
+        return Book(id, title, authorName, currentDate, genreList, readList,collectionName)
     }
 
     fun listViewBook(bookList: MutableList<Book> = this.bookList) {

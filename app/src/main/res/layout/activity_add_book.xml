@@ -35,12 +35,22 @@
         android:layout_marginRight="15dp"
         android:hint="Gênero(s)"/>
 
+    <AutoCompleteTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edtCollectionName"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/edtGenre"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:hint="Coleção"/>
+
     <CheckBox
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/cbAddToReadList"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/edtGenre"
+        android:layout_below="@+id/edtCollectionName"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
         android:checked="false"

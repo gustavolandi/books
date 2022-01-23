@@ -17,14 +17,18 @@ class SQLiteHelper(context: Context) :
         createTables(db)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (newVersion > oldVersion) {
+        }
     }
+
 
     private fun createTables(db: SQLiteDatabase) {
         val sqlAuthors = "CREATE TABLE IF NOT EXISTS $TBX_AUTHORS ($ID_PK, $AUTHOR_NAME VARCHAR(255))"
-        val sqlBooks = "CREATE TABLE IF NOT EXISTS $TBX_BOOKS ($ID_PK, $TITLE VARCHAR(255), $ID_AUTHOR INTEGER(10), $DATE_REGISTER VARCHAR(10)," +
-                "CONSTRAINT fk_author_book FOREIGN KEY ($ID_AUTHOR) REFERENCES $TBX_AUTHORS($ID))"
+        val sqlCollections = "CREATE TABLE IF NOT EXISTS $TBX_COLLECTIONS ($ID_PK, $COLLECTION_NAME VARCHAR(255))"
+        val sqlBooks = "CREATE TABLE IF NOT EXISTS $TBX_BOOKS ($ID_PK, $TITLE VARCHAR(255), $ID_AUTHOR INTEGER(10), $ID_COLLECTION INTEGER(10) NULL, $DATE_REGISTER VARCHAR(10)," +
+                "CONSTRAINT fk_author_book FOREIGN KEY ($ID_AUTHOR) REFERENCES $TBX_AUTHORS($ID)," +
+                "CONSTRAINT fk_book_collection FOREIGN KEY ($ID_COLLECTION) REFERENCES $TBX_COLLECTIONS($ID))"
         val sqlGenres = "CREATE TABLE IF NOT EXISTS $TBX_GENRES ($ID_PK, $GENRE)"
 
         val sqlGenresBooks = "CREATE TABLE IF NOT EXISTS $TBX_GENRES_BOOKS ($ID_PK, $ID_BOOK INTEGER(10), $ID_GENRE INTEGER(10), " +
@@ -36,6 +40,7 @@ class SQLiteHelper(context: Context) :
 
 
         db.createTable(sqlAuthors)
+        db.createTable(sqlCollections)
         db.createTable(sqlBooks)
         db.createTable(sqlGenres)
         db.createTable(sqlGenresBooks)
@@ -100,10 +105,15 @@ class SQLiteHelper(context: Context) :
         if (idAuthor == null) {
             idAuthor = saveAuthor(book.authorName!!)
         }
+        var idCollection: Long? = getCollectionByName(book.collectionName)
+        if (idCollection == null) {
+            idCollection = saveCollection(book.collectionName)
+        }
         val db = this.writableDatabase
         val ctv = ContentValues()
         ctv.put(TITLE, book.title)
         ctv.put(ID_AUTHOR, idAuthor)
+        ctv.put(ID_COLLECTION, idCollection)
         ctv.put(DATE_REGISTER, book.registerDate)
         val id = db.insert(TBX_BOOKS, ID, ctv)
         saveGenresBooks(book.genreList,id)
@@ -163,7 +173,17 @@ class SQLiteHelper(context: Context) :
         return list
     }
 
-    fun saveGenresBooks(genreList: MutableList<String>, idBook: Long) {
+    fun getCollections(collection: String) : MutableList<String>{
+        val db = this.readableDatabase
+        val list = mutableListOf<String>()
+        val cursor = db.rawQuery("SELECT $COLLECTION_NAME FROM $TBX_COLLECTIONS WHERE $COLLECTION_NAME LIKE '%$collection%'", null)
+        while (cursor.moveToNext()) {
+            list.add(cursor.getString(cursor.getColumnIndex(COLLECTION_NAME)))
+        }
+        return list
+    }
+
+    private fun saveGenresBooks(genreList: MutableList<String>, idBook: Long) {
         genreList
             .map {
                 getGenreByName(it)
@@ -253,6 +273,22 @@ class SQLiteHelper(context: Context) :
         return db.insert(TBX_GENRES, ID, ctv)
     }
 
+    private fun getCollectionByName(collectionName: String) : Long? {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $TBX_COLLECTIONS where $COLLECTION_NAME = '$collectionName'", null)
+        while (cursor.moveToNext()) {
+            return cursor.getLong(cursor.getColumnIndex(ID))
+        }
+        return null
+    }
+
+    private fun saveCollection(collectionName: String) : Long {
+        val db = this.writableDatabase
+        val ctv = ContentValues()
+        ctv.put(COLLECTION_NAME, collectionName)
+        return db.insert(TBX_COLLECTIONS, ID, ctv)
+    }
+
     companion object {
         private const val NAME_DB = "BookList_Landi.db"
         private const val version_db = 1
@@ -262,6 +298,7 @@ class SQLiteHelper(context: Context) :
         private const val TBX_GENRES = "tbx_genres"
         private const val TBX_GENRES_BOOKS = "tbx_genres_books"
         private const val TBX_BOOKS_READ = "tbx_books_read"
+        private const val TBX_COLLECTIONS = "tbx_books_collections"
 
         private const val ID_PK = "id integer primary key autoincrement"
 
@@ -272,9 +309,11 @@ class SQLiteHelper(context: Context) :
 
         private const val AUTHOR_NAME = "author_name"
         private const val GENRE = "genre"
+        private const val COLLECTION_NAME = "collection_name"
 
         private const val ID_BOOK = "id_book"
         private const val ID_GENRE = "id_genre"
+        private const val ID_COLLECTION = "id_collection"
         private const val DATE_STARTED = "date_started"
         private const val DATE_FINISHED = "date_finished"
 

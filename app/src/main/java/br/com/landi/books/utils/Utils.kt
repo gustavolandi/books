@@ -19,6 +19,7 @@ class Utils {
         const val BOOK_READ_LIST = "bookReadList"
         const val BOOK_DATE_STARTED = "bookDateStarted"
         const val BOOK_DATE_END = "bookDateEnd"
+        const val BOOK_COLLECTION = "bookCollection"
         const val BOOK_READ_UPDATE = "BOOK_READ_UPDATE"
         const val DATE_FORMAT = "dd/MM/yyyy"
         const val NO_FILTER = "Sem filtro"

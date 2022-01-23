@@ -21,6 +21,7 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_TITLE
 import android.widget.ArrayAdapter
 import br.com.landi.books.repository.SQLiteHelper
 import br.com.landi.books.types.ErrorMessage
+import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION
 
 
 class AddBookActivity : AppCompatActivity() {
@@ -51,6 +52,7 @@ class AddBookActivity : AppCompatActivity() {
         val cbReadList = findViewById<CheckBox>(R.id.cbAddToReadList)
         val edtDateStart = findViewById<EditText>(R.id.edtDateStartReading1)
         val edtDateFinish = findViewById<EditText>(R.id.edtDateFinishReading1)
+        val edtCollectionName = findViewById<AutoCompleteTextView>(R.id.edtCollectionName)
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
@@ -61,7 +63,16 @@ class AddBookActivity : AppCompatActivity() {
             }
         }
         edtAuthor.addTextChangedListener(textWatcher)
-
+        val textWatcherCollections = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable) {
+                if (s.toString().isNotEmpty()) {
+                    edtCollectionName.setAdapter(getArrayAdapterCollection(s.toString()))
+                }
+            }
+        }
+        edtCollectionName.addTextChangedListener(textWatcherCollections)
         btn.setOnClickListener {
             if (edtTitle.text.toString().isEmpty()) {
                 edtTitle.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
@@ -79,6 +90,7 @@ class AddBookActivity : AppCompatActivity() {
                     putExtra(BOOK_READ_LIST, cbReadList.isChecked)
                     putExtra(BOOK_DATE_STARTED, edtDateStart.text.toString())
                     putExtra(BOOK_DATE_END, edtDateFinish.text.toString())
+                    putExtra(BOOK_COLLECTION, edtCollectionName.text.toString())
                     putStringArrayListExtra(BOOK_GENRE, genres)
                     setResult(Activity.RESULT_OK, this)
                 }
@@ -92,6 +104,13 @@ class AddBookActivity : AppCompatActivity() {
         return ArrayAdapter<String>(
             this,
             android.R.layout.simple_dropdown_item_1line, SQLiteHelper(this).getAuthors(text)
+        )
+    }
+
+    private fun getArrayAdapterCollection(text: String) : ArrayAdapter<String> {
+        return ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_dropdown_item_1line, SQLiteHelper(this).getCollections(text)
         )
     }
 }
