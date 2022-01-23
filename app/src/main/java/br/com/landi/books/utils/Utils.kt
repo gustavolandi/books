@@ -3,6 +3,7 @@ package br.com.landi.books.utils
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import br.com.landi.books.model.Book
 import br.com.landi.books.model.Read
 import br.com.landi.books.types.StatusRead
 import java.text.SimpleDateFormat
@@ -51,6 +52,12 @@ class Utils {
                     (a.status == StatusRead.STATUS_NOT_INITIALIZED && b.status == StatusRead.STATUS_READING) -> 1
                     else -> -1
                 }
+            }
+        }
+
+        fun comparatorDate() : Comparator<Book> {
+            return Comparator<Book>{ a, b ->
+               return@Comparator(a.registerDate!!.compareTo(b.registerDate!!))
             }
         }
 

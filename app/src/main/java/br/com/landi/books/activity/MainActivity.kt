@@ -33,6 +33,7 @@ import br.com.landi.books.utils.Utils.Companion.BOOK_READ_UPDATE
 import br.com.landi.books.utils.Utils.Companion.FILTER_AUTHOR
 import br.com.landi.books.utils.Utils.Companion.FILTER_GENRE
 import br.com.landi.books.utils.Utils.Companion.NO_FILTER
+import br.com.landi.books.utils.Utils.Companion.comparatorDate
 import br.com.landi.books.utils.Utils.Companion.comparatorReadStatus
 import br.com.landi.books.utils.Utils.Companion.getDateNow
 
@@ -142,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
     fun getBookList(){
         val db = SQLiteHelper(this)
-        this.bookList = db.getBookList().sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it.title!! }).toMutableList()
+        this.bookList = db.getBookList().sortedWith(comparatorDate()).toMutableList()
         listViewBook()
     }
 
