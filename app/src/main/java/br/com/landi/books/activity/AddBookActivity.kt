@@ -8,6 +8,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.widget.AutoCompleteTextView
 import android.widget.CheckBox
 import android.widget.EditText
@@ -24,6 +26,8 @@ import br.com.landi.books.adapter.UtilsAdapter
 import br.com.landi.books.repository.SQLiteHelper
 import br.com.landi.books.types.ErrorMessage
 import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION
+import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION_POSITION
+import kotlinx.android.synthetic.main.activity_add_book.*
 
 
 class AddBookActivity : AppCompatActivity() {
@@ -66,6 +70,7 @@ class AddBookActivity : AppCompatActivity() {
         val edtDateStart = findViewById<EditText>(R.id.edtDateStartReading1)
         val edtDateFinish = findViewById<EditText>(R.id.edtDateFinishReading1)
         val edtCollectionName = findViewById<AutoCompleteTextView>(R.id.edtCollectionName)
+        val edtPositionCollection = findViewById<EditText>(R.id.edtCollectionPosition)
         val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
@@ -81,7 +86,11 @@ class AddBookActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable) {
                 if (s.toString().isNotEmpty()) {
+                    edtPositionCollection.visibility = VISIBLE
                     edtCollectionName.setAdapter(getArrayAdapterCollection(s.toString()))
+                } else {
+                    edtPositionCollection.visibility = INVISIBLE
+                    edtPositionCollection.setText("")
                 }
             }
         }
@@ -123,9 +132,9 @@ class AddBookActivity : AppCompatActivity() {
             }
         }
         btn.setOnClickListener {
-            if (edtTitle.text.toString().isEmpty()) {
+            if (edtTitle.text.toString().trim().isEmpty()) {
                 edtTitle.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
-            } else if (edtAuthor.text.toString().isEmpty()) {
+            } else if (edtAuthor.text.toString().trim().isEmpty()) {
                 edtAuthor.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
             } else {
                 var genres = if (edtGenre.text.toString().trim().isEmpty()) {
@@ -133,17 +142,22 @@ class AddBookActivity : AppCompatActivity() {
                 } else {
                     ArrayList(edtGenre.text.toString().split(" ").filter { it.trim().isNotEmpty() })
                 }
-                with(Intent()) {
-                    putExtra(BOOK_TITLE, edtTitle.text.toString())
-                    putExtra(BOOK_AUTHOR_NAME, edtAuthor.text.toString())
-                    putExtra(BOOK_READ_LIST, cbReadList.isChecked)
-                    putExtra(BOOK_DATE_STARTED, edtDateStart.text.toString())
-                    putExtra(BOOK_DATE_END, edtDateFinish.text.toString())
-                    putExtra(BOOK_COLLECTION, edtCollectionName.text.toString())
-                    putStringArrayListExtra(BOOK_GENRE, genres)
-                    setResult(Activity.RESULT_OK, this)
+                if (edtCollectionName.text.toString().trim().isNotEmpty() && edtCollectionPosition.text.toString().trim().isEmpty()) {
+                    edtCollectionPosition.error  = ErrorMessage.FIELD_NECESSARY.errorMessage
+                } else {
+                    with(Intent()) {
+                        putExtra(BOOK_TITLE, edtTitle.text.toString())
+                        putExtra(BOOK_AUTHOR_NAME, edtAuthor.text.toString())
+                        putExtra(BOOK_READ_LIST, cbReadList.isChecked)
+                        putExtra(BOOK_DATE_STARTED, edtDateStart.text.toString())
+                        putExtra(BOOK_DATE_END, edtDateFinish.text.toString())
+                        putExtra(BOOK_COLLECTION, edtCollectionName.text.toString())
+                        putExtra(BOOK_COLLECTION_POSITION, edtPositionCollection.text.toString().toInt())
+                        putStringArrayListExtra(BOOK_GENRE, genres)
+                        setResult(Activity.RESULT_OK, this)
+                    }
+                    finish()
                 }
-                finish()
             }
 
         }

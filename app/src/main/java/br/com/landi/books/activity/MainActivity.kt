@@ -25,6 +25,7 @@ import android.widget.*
 import br.com.landi.books.utils.Action
 import br.com.landi.books.utils.Utils.Companion.BOOK_AUTHOR_NAME
 import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION
+import br.com.landi.books.utils.Utils.Companion.BOOK_COLLECTION_POSITION
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_END
 import br.com.landi.books.utils.Utils.Companion.BOOK_DATE_STARTED
 import br.com.landi.books.utils.Utils.Companion.BOOK_READ_LIST
@@ -106,7 +107,8 @@ class MainActivity : AppCompatActivity() {
                         title = result.data?.getStringExtra(BOOK_TITLE),
                         authorName = result.data?.getStringExtra(BOOK_AUTHOR_NAME),
                         genreList = result.data?.getStringArrayListExtra(BOOK_GENRE)!!,
-                        collectionName = result.data?.getStringExtra(BOOK_COLLECTION)!!
+                        collectionName = result.data?.getStringExtra(BOOK_COLLECTION)!!,
+                        collectionPosition = result.data?.getIntExtra(BOOK_COLLECTION_POSITION,0)!!
                     )
                     val idBook = saveBook(book)
                     if (result.data?.getBooleanExtra(BOOK_READ_LIST, false) == true) {
@@ -132,6 +134,7 @@ class MainActivity : AppCompatActivity() {
                         saveReadList(read)
 
                     }
+                    hideLayoutFilter()
                 }
             }
     }
@@ -203,10 +206,11 @@ class MainActivity : AppCompatActivity() {
         authorName: String?,
         genreList: MutableList<String> = mutableListOf(),
         readList: MutableList<Read> = mutableListOf(),
-        collectionName: String = ""
+        collectionName: String = "",
+        collectionPosition : Int = 0
     ): Book {
         val currentDate: String = getDateNow()
-        return Book(id, title, authorName, currentDate, genreList, readList,collectionName)
+        return Book(id, title, authorName, currentDate, genreList, readList,collectionName,collectionPosition)
     }
 
     fun listViewBook(bookList: MutableList<Book> = this.bookList) {
@@ -270,10 +274,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun noFilter() {
-        val linearLayoutFilter : LinearLayout = findViewById(R.id.linearLayoutFilter)
-        linearLayoutFilter.visibility = View.GONE
+        hideLayoutFilter()
         listViewBook()
         listViewReadList()
+    }
+
+    fun hideLayoutFilter(){
+        val linearLayoutFilter : LinearLayout = findViewById(R.id.linearLayoutFilter)
+        linearLayoutFilter.visibility = View.GONE
     }
 
     private fun filterByAuthor() {
@@ -409,8 +417,8 @@ class MainActivity : AppCompatActivity() {
         val collectionListSorted: List<String> = collectionList.sortedWith( compareBy(String.CASE_INSENSITIVE_ORDER) { it })
         val txv : TextView = findViewById(R.id.txvBookFilter)
         txv.text = collectionListSorted[collectionSelected]
-        listViewBook(this.bookList.filter { it.collectionName == collectionListSorted[collectionSelected] }.toMutableList())
-        listViewReadList(this.readList.filter { it.collectionName == collectionListSorted[collectionSelected] }.toMutableList())
+        listViewBook(this.bookList.filter { it.collectionName == collectionListSorted[collectionSelected] }.sortedBy { it.collectionPosition }.toMutableList())
+        listViewReadList(this.readList.filter { it.collectionName == collectionListSorted[collectionSelected] }.sortedBy { it.collectionPosition }.toMutableList())
     }
 
     private fun filterByCollection()  {

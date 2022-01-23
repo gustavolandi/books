@@ -45,12 +45,24 @@
         android:layout_marginRight="15dp"
         android:hint="Coleção"/>
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edtCollectionPosition"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/edtCollectionName"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:inputType="number"
+        android:hint="Posição Coleção"
+        android:visibility="gone"/>
+
     <CheckBox
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/cbAddToReadList"
         android:layout_marginTop="10dp"
-        android:layout_below="@+id/edtCollectionName"
+        android:layout_below="@+id/edtCollectionPosition"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
         android:checked="false"
